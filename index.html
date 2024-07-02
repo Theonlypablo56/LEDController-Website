@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script>
+    setTimeout( () => {
+      let colorPicker = document.getElementById('RGBCOLOR');
+      let hertzInput = document.getElementById('hertzInput');
+      let rgbOutputText = document.getElementById('rgbOutputText');
+      let redPinDrp = document.getElementById('redPinTxt');
+      let currHertz = 11500;
+      let currBitch = true;
+
+      colorPicker.addEventListener('change', () => {
+        const rgbVal = hexDecoder(colorPicker.value);
+        const colorPickerLabel = document.getElementById("rgbInputLabel");
+        
+        colorPickerLabel.style.color = colorPicker.value;
+        colorPickerLabel.textContent = "Current RGB: " + colorPicker.value;
+        console.log(rgbVal);
+
+        var xhttp = new XMLHttpRequest();
+        
+        xhttp.open("POST", "updatedRGB?rgb="+rgbVal, true);
+        xhttp.send();
+      });
+      
+      hertzInput.addEventListener('change', () => {
+        const hertzVal = hertzInput.value;
+        console.log(`We got ${hertzVal}hz.`);
+
+        var xhttp = new XMLHttpRequest();
+        
+        xhttp.open("POST", "updatedHertz?Hertz="+hertzVal, true);
+        xhttp.send();
+      });
+      
+      rgbOutputText.addEventListener('mouseover', () => {
+        animateCSS(rgbOutputText, "slideInDown");
+      });
+      
+      redPinDrp.addEventListener('mouseover', () => {
+        let dropDown = document.getElementById('redDropdown');
+        animateCSS(dropDown, "slideInDown");
+        animateCSS(dropDown, "animate__slow");
+      });
+
+      const animateCSS = (element, animation, prefix = 'animate__') =>
+        // We create a Promise and return it
+        new Promise((resolve, reject) => {
+          const animationName = `${prefix}${animation}`;
+          const node = element;
+
+          node.classList.add(`${prefix}animated`, animationName);
+
+          // When the animation ends, we clean the classes and resolve the Promise
+          function handleAnimationEnd(event) {
+            event.stopPropagation();
+            node.classList.remove(`${prefix}animated`, animationName);
+            resolve('Animation ended');
+          }
+
+          node.addEventListener('animationend', handleAnimationEnd, {once: true});
+      });
+    }, 100);
+
+    let hexDecoder = (hexCode) => {
+      let r = (letToNum(hexCode[1]) * 16) + letToNum(hexCode[2]);
+      let g = (letToNum(hexCode[3]) * 16) + letToNum(hexCode[4]);
+      let b = (letToNum(hexCode[5]) * 16) + letToNum(hexCode[6]);
+      //console.log(`(${r}, ${g}, ${b})`);
+      return `${r},${g},${b}`
+    }
+
+    let letToNum = (str) => {
+      if (Number(str)){
+        return Number(str);
+      }
+      str.toLowerCase();
+      switch (str) {
+        case 'a':
+          str = 10;
+          break;
+        case 'b':
+          str = 11;
+          break;
+        case 'c':
+          str = 12;
+          break;
+        case 'd':
+          str = 13;
+          break;
+        case 'e':
+          str = 14;
+          break;
+        case 'f':
+          str = 15;
+          break;
+        default:
+          str = Number(str);
+      }
+      return str;
+    }
+
+  </script>
+<title> Colors :P </title>
+</head>
+<body>
+
+  <div class="topNav">
+    
+    <div style="fill: #758698; transform: translate(50px, 5px); position: relative;">
+      <svg viewBox="0 0 110 67" width="40" height="40">
+        <rect x="0" y="0" width="110" height="17" rx="8%"></rect>
+        <rect x="0" y="25" width="110" height="17" rx="8%"></rect>
+        <rect x="0" y="50" width="110" height="17"  rx="8%"></rect>
+      </svg>
+    </div>
+
+    <div class="navText">
+      <a class="hover:drop-shadow-3xl" href="#home">Color Picker</a>
+      <a class="hover:drop-shadow-3xl" href="#ball">Ballz</a>
+      <a class="hover:drop-shadow-3xl" href="#room">Room</a>
+      <a class="hover:drop-shadow-3xl" href="#about">Stuff</a>
+    </div>
+  </div>
+  
+  <div class="adjustables w-3/4">
+
+    <div class="columnContainer" style="align-items:first baseline;">
+        <label id="rgbInputLabel" for "COLOR" class="inputLabel" style="color: #000000;">Current RGB: #000000</label>
+        <input type='color' id='RGBCOLOR' class="rgbInput" name='COLOR'/>
+        
+        <div class="rowContainer">
+          <label for="rgbTextInput" class="inputLabel">Hex Input : </label>
+        </div>
+
+        <div class="rowContainer">
+          <label for="rgbTextInput" class="inputLabel">RGB Input : </label>
+        </div>
+    
+    </div>
+
+    <div class="columnContainer">
+      <label for "Frequency" class="inputLabel">LED Frequency Input</label>
+      <input type="number" id="hertzInput" class="mt-0 block px-0.5 border-0 border-b-2 focus:ring-0 focus:border-black" style="width: 200px; background: transparent;" name="Frequency" placeholder="Frequency (HZ)"/>
+      <label for "Frequency" class="inputLabel" style="font-size: 10px; font-weight:900; color: #aa8d8d;">Default set to 11,500hz</label>
+    </div>
+
+    <div class="columnContainer">
+      <label for "pins" id="rgbOutputText" class="inputLabel">RGB OUTPUT PINS</label>
+      
+      <div class="rowContainer">
+        <label for "redPin" class="inputLabel" style="color: rgb(255, 30, 30);">Red Pin:</label>
+        <label id="redPinTxt" class="inputLabel ml-2">Pin #</label>
+        <div class="dropdown">
+          <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" style="transform: translate(-10px, -25px);"><path d="M480-360 280-559.33h400L480-360Z"/></svg>
+          <div id="redDropdown" class="dropdown-content">
+            <a href="#">Pin 1</a>
+            <a href="#">Pin 2</a>
+            <a href="#">Pin 3</a>
+            <button>hi</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  
+</body>
+</html>
